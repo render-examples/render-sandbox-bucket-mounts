@@ -3,12 +3,12 @@
 The example passed these checks against real private Amazon S3 and Cloudflare R2
 buckets. The checks used the committed example without source changes.
 
-| Check | Result | Sandbox |
-| --- | --- | --- |
-| Guest FUSE support and `/dev/fuse` | Passed | `sbx-18p4gdba4sk3rjlhs738tqceg` |
-| Private S3 mount, read, and read-only write rejection | Passed | `sbx-18p4gdba4vo3bc2fs73a34ugg` |
-| S3 and R2 mounted together, object reads, and read-only write rejection | Passed | `sbx-18p4gdba5087btjjs73dqh1bg` |
-| S3 and R2 write, unmount, fresh mount, read, and delete | Passed | `sbx-18p4gdba50km1egvs739crbk0` |
+| Check | Result |
+| --- | --- |
+| Guest FUSE support and `/dev/fuse` | Passed |
+| Private S3 mount, read, and read-only write rejection | Passed |
+| S3 and R2 mounted together, object reads, and read-only write rejection | Passed |
+| S3 and R2 write, unmount, fresh mount, read, and delete | Passed |
 
 Each read-only check read an object created through the provider's S3 API. An
 attempt to write through each read-only mount failed with `EROFS`.
@@ -33,8 +33,7 @@ Verified r2: write, remount, read, delete.
 - A temporary AWS role scoped to the test bucket, with 15-minute sessions.
 - An R2 token scoped to the test bucket, with object read and write permission.
 
-The temporary bucket name on both providers was
-`render-sandbox-mount-test-20261017-44b86e15`. No production bucket data was used.
+Both providers used temporary test buckets. No production bucket data was used.
 
 ## Cleanup
 
