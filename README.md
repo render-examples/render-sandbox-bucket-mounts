@@ -15,9 +15,6 @@ mounts buckets as read-only, lists up to 10 entries from each bucket, unmounts
 them, and terminates the sandbox. Both examples use the standard Sandbox image;
 you do not need to build or publish a container image.
 
-Python live checks passed for private S3 and R2 buckets on October 17, 2026. See the
-[validation record](docs/live-validation.md) for the checks and their limits.
-
 ## Repository layout
 
 | Path | Contents |
@@ -26,7 +23,6 @@ Python live checks passed for private S3 and R2 buckets on October 17, 2026. See
 | [typescript/](typescript/) | TypeScript runner, sandbox code, dependencies, and tests |
 | [.env.example](.env.example) | Shared environment variable template |
 | [policies/](policies/) | S3 policies for read-only access and the write check |
-| [docs/](docs/) | Live validation record |
 
 Each language directory is a separate project. You need only its runtime and
 package manager. Both use the same environment variables, mount paths, and flags.
@@ -204,6 +200,5 @@ projects in separate jobs.
 
 These checks need no cloud credentials. They cover provider configuration,
 credential separation, failed mount processes, command exit handling, and
-sandbox cleanup. They do not prove a live S3 or R2 mount. Run the example in the
-selected language against your own private buckets to validate your credentials
-and network path.
+sandbox cleanup. Use a private test bucket to check your credentials and network
+access.

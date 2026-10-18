@@ -56,6 +56,3 @@ uv run ruff check .
 uv run ruff format --check .
 uv run python -m unittest discover -s tests -v
 ```
-
-See the [live validation record](../docs/live-validation.md) for the private S3
-and R2 checks that passed with this Python implementation.

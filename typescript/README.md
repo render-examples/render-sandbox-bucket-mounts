@@ -62,6 +62,4 @@ npm test
 ```
 
 The checks cover types, format, lint, provider settings, credential separation,
-process cleanup, and sandbox cleanup after failures. The TypeScript implementation
-has not had a live bucket test. The [live validation record](../docs/live-validation.md)
-covers the Python implementation.
+process cleanup, and sandbox cleanup after failures.
