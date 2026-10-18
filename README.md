@@ -15,6 +15,9 @@ mounts buckets as read-only, lists up to 10 entries from each bucket, unmounts
 them, and terminates the sandbox. The example uses the standard Sandbox image;
 you do not need to build or publish a container image.
 
+Live checks passed for private S3 and R2 buckets on October 17, 2026. See the
+[validation record](docs/live-validation.md) for the checks and their limits.
+
 ## Requirements
 
 - Python 3.11 or later and [uv](https://docs.astral.sh/uv/getting-started/installation/).
