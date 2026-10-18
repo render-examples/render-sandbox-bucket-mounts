@@ -1,0 +1,16 @@
+[project]
+name = "render-sandbox-bucket-mounts"
+version = "0.1.0"
+description = "Mount private Amazon S3 and Cloudflare R2 buckets in Render Sandboxes."
+requires-python = ">=3.11"
+dependencies = ["render==1.2.0"]
+
+[dependency-groups]
+dev = ["ruff>=0.14,<1"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
