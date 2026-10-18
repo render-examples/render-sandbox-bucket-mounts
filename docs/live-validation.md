@@ -1,7 +1,9 @@
 # Live validation: October 17, 2026
 
-The example passed these checks against real private Amazon S3 and Cloudflare R2
-buckets. The checks used the committed example without source changes.
+The Python example passed these checks against real private Amazon S3 and
+Cloudflare R2 buckets. The checks used the committed example without source
+changes. The Python files now live in `python/`; their code has not changed.
+The TypeScript example has automated checks but has not had a live bucket test.
 
 | Check | Result |
 | --- | --- |
@@ -13,7 +15,8 @@ buckets. The checks used the committed example without source changes.
 Each read-only check read an object created through the provider's S3 API. An
 attempt to write through each read-only mount failed with `EROFS`.
 
-The write check used `example.py both --write-demo`. It wrote a small text object
+The write check used `example.py both --write-demo`. Run that command from the
+`python/` directory in the current layout. It wrote a small text object
 to each bucket and read its expected contents after a fresh `s3fs` mount. Both
 providers returned:
 

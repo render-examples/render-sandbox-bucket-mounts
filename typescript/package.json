@@ -1,0 +1,25 @@
+{
+  "name": "render-sandbox-bucket-mounts-typescript",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Mount private S3 and R2 buckets in Render Sandboxes with TypeScript.",
+  "engines": {
+    "node": ">=22.9.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "demo": "npm run build --silent && node --env-file-if-exists=.env dist/src/example.js",
+    "test": "npm run build --silent && node --test dist/test/*.test.js",
+    "check": "biome check . && tsc --noEmit"
+  },
+  "dependencies": {
+    "@renderinc/sdk": "1.2.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@types/node": "22.20.5",
+    "typescript": "5.9.3"
+  }
+}

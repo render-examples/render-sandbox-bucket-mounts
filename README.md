@@ -1,9 +1,9 @@
 # Private S3 and R2 mounts in Render Sandboxes
 
 Use normal file operations to access private Amazon S3 and Cloudflare R2 buckets
-from a [Render Sandbox](https://render.com/docs/sandboxes). This Python example
-uses the [Render SDK](https://render.com/docs/sandboxes-sdk-python) to create a
-sandbox and [s3fs-fuse](https://github.com/s3fs-fuse/s3fs-fuse) to mount buckets.
+from a [Render Sandbox](https://render.com/docs/sandboxes). Choose the Python or
+TypeScript example. Each uses the official Render SDK to create a sandbox and
+[s3fs-fuse](https://github.com/s3fs-fuse/s3fs-fuse) to mount buckets.
 
 | Provider | Mount path | Authentication |
 | --- | --- | --- |
@@ -12,64 +12,59 @@ sandbox and [s3fs-fuse](https://github.com/s3fs-fuse/s3fs-fuse) to mount buckets
 
 Select one provider or mount both buckets in the same sandbox. The default run
 mounts buckets as read-only, lists up to 10 entries from each bucket, unmounts
-them, and terminates the sandbox. The example uses the standard Sandbox image;
+them, and terminates the sandbox. Both examples use the standard Sandbox image;
 you do not need to build or publish a container image.
 
-Live checks passed for private S3 and R2 buckets on October 17, 2026. See the
+Python live checks passed for private S3 and R2 buckets on October 17, 2026. See the
 [validation record](docs/live-validation.md) for the checks and their limits.
+
+## Repository layout
+
+| Path | Contents |
+| --- | --- |
+| [python/](python/) | Python runner, sandbox code, dependencies, and tests |
+| [typescript/](typescript/) | TypeScript runner, sandbox code, dependencies, and tests |
+| [.env.example](.env.example) | Shared environment variable template |
+| [policies/](policies/) | S3 policies for read-only access and the write check |
+| [docs/](docs/) | Live validation record |
+
+Each language directory is a separate project. You need only its runtime and
+package manager. Both use the same environment variables, mount paths, and flags.
 
 ## Requirements
 
-- Python 3.11 or later and [uv](https://docs.astral.sh/uv/getting-started/installation/).
+- Python: Python 3.11 or later and [uv](https://docs.astral.sh/uv/getting-started/installation/).
+- TypeScript: Node.js 22.9 or later and npm.
 - A Render API key and a workspace with Sandboxes enabled.
 - A private S3 bucket, a private R2 bucket, or both.
 - A Sandbox guest kernel with FUSE support and `/dev/fuse`.
 
-The example installs `python3`, `s3fs`, and FUSE tools in the sandbox. It checks
+Each example installs its runtime, `s3fs`, and FUSE tools in the sandbox. It checks
 kernel support first. The sandbox must be able to reach Debian package servers
 and the selected storage endpoints. You do not need FUSE on your own computer.
 
 Sandboxes is in early access. See the [Render guide](https://render.com/docs/sandboxes)
-for access requirements and current limits. The example pins Render SDK 1.2.0.
+for access requirements and current limits. Both examples pin Render SDK 1.2.0.
 
-## Run the example
+## Run an example
 
 ```bash
 git clone https://github.com/render-examples/render-sandbox-bucket-mounts.git
 cd render-sandbox-bucket-mounts
-cp .env.example .env
-uv sync --locked
 ```
 
-Edit `.env`. Set `RENDER_API_KEY` and `RENDER_WORKSPACE_ID`, then fill in the
-variables for each provider you want to use. The workspace ID is on the
-workspace's Settings page in the Render Dashboard. Git ignores `.env`.
+Follow the [Python setup](python/README.md) or the
+[TypeScript setup](typescript/README.md). Each guide shows how to copy the shared
+environment template, install dependencies, and run the example.
 
-```bash
-# Mount both buckets in one sandbox.
-uv run --env-file .env python example.py both
+Set `RENDER_API_KEY` and `RENDER_WORKSPACE_ID` in the language directory's `.env`,
+then fill in the variables for each provider you want to use. The workspace ID
+is on the workspace's Settings page in the Render Dashboard. Git ignores `.env`.
+See the provider setup below for bucket permissions and credentials.
 
-# Use only the S3 settings.
-uv run --env-file .env python example.py s3
-
-# Use only the R2 settings.
-uv run --env-file .env python example.py r2
-```
-
-To run your own command while both buckets are mounted:
-
-```bash
-uv run --env-file .env python example.py both \
-  --command 'find /mnt/s3 /mnt/r2 -maxdepth 1 -type f'
-```
-
-For example, an existing file at S3 key `reports/latest.csv` is available at
-`/mnt/s3/reports/latest.csv`. You can read it with Python:
-
-```bash
-uv run --env-file .env python example.py s3 \
-  --command 'python3 -c "from pathlib import Path; print(Path(\"/mnt/s3/reports/latest.csv\").read_text())"'
-```
+Choose `s3`, `r2`, or `both`. Use `--command` to run a Bash command while the
+buckets are mounted. For example, an existing object at S3 key
+`reports/latest.csv` is available at `/mnt/s3/reports/latest.csv`.
 
 ## Configure private S3 access
 
@@ -121,9 +116,12 @@ See [R2 authentication](https://developers.cloudflare.com/r2/api/tokens/),
 
 Use dedicated sample buckets and credentials with write and delete permission.
 
-```bash
-uv run --env-file .env python example.py both --write-demo
-```
+From the selected language directory:
+
+| Language | Command |
+| --- | --- |
+| Python | `uv run --env-file .env python example.py both --write-demo` |
+| TypeScript | `npm run demo -- both --write-demo` |
 
 This mode mounts the selected buckets with write access. For each bucket, it
 creates a small object named `render-sandbox-demo-<random-id>.txt`, closes the
@@ -138,24 +136,26 @@ remain. Remove keys with the `render-sandbox-demo-` prefix when you no longer
 need them. In a versioned S3 bucket, older object versions and delete markers
 can remain after deletion.
 
-## How the example works
+## How the examples work
 
-1. [example.py](example.py) validates the selected settings and creates a sandbox
-   with a 15-minute maximum lifetime.
+1. [python/example.py](python/example.py) or
+   [typescript/src/example.ts](typescript/src/example.ts) validates the selected
+   settings and creates a sandbox with a 15-minute maximum lifetime.
 2. It waits for `running`, checks FUSE, and installs the mount tools.
 3. It copies the mount code and a credentials file into a directory that only
    root can access. The Render API key stays on your computer.
-4. [sandbox/mount_buckets.py](sandbox/mount_buckets.py) reads and removes the
-   credentials file. It starts one foreground `s3fs` process per bucket, with
-   separate AWS-compatible credentials in each process's environment.
+4. The [Python mount code](python/sandbox/mount_buckets.py) or the compiled
+   [TypeScript mount code](typescript/src/sandbox/mount-buckets.mts) reads and
+   removes the credentials file. It starts one foreground `s3fs` process per
+   bucket, with separate AWS-compatible credentials in each process's environment.
 5. It runs the file workload, unmounts the buckets, and stops the mount processes.
 6. The local runner calls `terminate` in `finally`, including after setup,
    upload, or workload errors and normal interrupts.
 
 If the local process stops before cleanup, the sandbox's lifetime limits how
 long it can run. To terminate it manually, use the printed sandbox ID in the
-Dashboard or call `Render().experimental.sandboxes.terminate(sandbox_id)` with
-`RENDER_API_KEY` and `RENDER_WORKSPACE_ID` set.
+Dashboard or use the SDK's `sandboxes.terminate` method with `RENDER_API_KEY` and
+`RENDER_WORKSPACE_ID` set.
 
 ## Limits and operational notes
 
@@ -199,13 +199,11 @@ For S3 permission failures, see the [AWS 403 guide](https://docs.aws.amazon.com/
 
 ## Validate the code
 
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run python -m unittest discover -s tests -v
-```
+Each language guide lists its format, lint, and test commands. CI runs both
+projects in separate jobs.
 
 These checks need no cloud credentials. They cover provider configuration,
 credential separation, failed mount processes, command exit handling, and
-sandbox cleanup. They do not prove a live S3 or R2 mount. Run the commands above
-against your own private buckets to validate your credentials and network path.
+sandbox cleanup. They do not prove a live S3 or R2 mount. Run the example in the
+selected language against your own private buckets to validate your credentials
+and network path.
